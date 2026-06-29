@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="users")
@@ -31,6 +33,10 @@ public class User {
     @NotBlank(message="Password is required")
     @Column(nullable=false)
     private String password;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Project> projects = new ArrayList<>();
 
     @Column(name="created_at")
     private LocalDateTime createdAt;
