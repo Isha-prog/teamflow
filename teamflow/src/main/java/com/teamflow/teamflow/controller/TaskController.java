@@ -4,7 +4,6 @@ import com.teamflow.teamflow.dto.request.TaskRequest;
 import com.teamflow.teamflow.dto.response.TaskResponse;
 import com.teamflow.teamflow.security.CurrentUser;
 import com.teamflow.teamflow.service.TaskService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,36 +22,27 @@ public class TaskController {
     @PostMapping("/{projectId}/tasks")
     public ResponseEntity<TaskResponse> createTask(
             @PathVariable Long projectId,
-            @Valid @RequestBody TaskRequest request,
-            HttpServletRequest httpRequest) {
-        Long userId = currentUser.getUserId(httpRequest);
-        TaskResponse response = taskService.createTask(projectId, request, userId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            @Valid @RequestBody TaskRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(taskService.createTask(projectId, request, currentUser.getUserId()));
     }
 
     @GetMapping("/{projectId}/tasks")
     public ResponseEntity<List<TaskResponse>> getProjectTasks(
-            @PathVariable Long projectId,
-            HttpServletRequest httpRequest) {
-        Long userId = currentUser.getUserId(httpRequest);
-        return ResponseEntity.ok(taskService.getProjectTasks(projectId, userId));
+            @PathVariable Long projectId) {
+        return ResponseEntity.ok(taskService.getProjectTasks(projectId, currentUser.getUserId()));
     }
 
     @PutMapping("/tasks/{taskId}")
     public ResponseEntity<TaskResponse> updateTask(
             @PathVariable Long taskId,
-            @Valid @RequestBody TaskRequest request,
-            HttpServletRequest httpRequest) {
-        Long userId = currentUser.getUserId(httpRequest);
-        return ResponseEntity.ok(taskService.updateTask(taskId, request, userId));
+            @Valid @RequestBody TaskRequest request) {
+        return ResponseEntity.ok(taskService.updateTask(taskId, request, currentUser.getUserId()));
     }
 
     @DeleteMapping("/tasks/{taskId}")
-    public ResponseEntity<Void> deleteTask(
-            @PathVariable Long taskId,
-            HttpServletRequest httpRequest) {
-        Long userId = currentUser.getUserId(httpRequest);
-        taskService.deleteTask(taskId, userId);
+    public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
+        taskService.deleteTask(taskId, currentUser.getUserId());
         return ResponseEntity.noContent().build();
     }
 }

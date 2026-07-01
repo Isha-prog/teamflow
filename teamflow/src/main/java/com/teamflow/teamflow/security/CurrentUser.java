@@ -1,16 +1,24 @@
 package com.teamflow.teamflow.security;
 
-import jakarta.servlet.http.HttpServletRequest;
+import com.teamflow.teamflow.model.User;
+import com.teamflow.teamflow.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class CurrentUser {
 
-    public Long getUserId(HttpServletRequest request) {
-        String userId = request.getHeader("X-User-Id");
-        if (userId == null) {
-            throw new RuntimeException("User ID header missing");
-        }
-        return Long.parseLong(userId);
+    private final UserRepository userRepository;
+
+    public Long getUserId() {
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        return userRepository.findByEmail(email)
+                .map(User::getId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
